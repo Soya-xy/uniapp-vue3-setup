@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
     "target": "esnext",
     "useDefineForClassFields": true,
+    "allowSyntheticDefaultImports": true,
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
+    "allowJs": false,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -28,8 +31,6 @@
   },
   "include": [
     "./auto-imports.d.ts",
-    "src/**/*",
-    "src/**/*.nvue",
-    "src/**/*.vue",
+    "src/**/*"
   ]
 }
