@@ -1,8 +1,11 @@
+// 判断是否是h5
+/*  #ifdef  H5 */
 * {
   font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Helvetica,
     Segoe UI, Arial, Roboto, PingFang SC, miui, Hiragino Sans GB,
     Microsoft Yahei, sans-serif;
 }
+/*  #endif  */
 image {
   will-change: transform;
 }
