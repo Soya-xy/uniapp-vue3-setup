@@ -1,0 +1,28 @@
+globals:
+  {
+    'defineProps': 'readonly',
+    'defineEmits': 'readonly',
+    'defineExpose': 'readonly',
+    'withDefaults': 'readonly',
+    'uni': 'readonly',
+    'plus': 'readonly',
+  }
+
+extends:
+  - '@antfu'
+  - './.eslintrc-auto-import.json'
+
+rules:
+  {
+    'vue/component-tags-order': [2, { order: ['template', 'script', 'style'] }],
+    'no-unused-vars': 'error',
+    'vue/comment-directive': 'off',
+    'no-undef': 'error',
+    'no-console': 0,
+    'prefer-promise-reject-errors': [1, { allowEmptyReject: true }],
+  }
+
+overrides:
+  - files: ['*.vue', '*.nvue']
+    parser: 'vue-eslint-parser'
+    parserOptions: { parser: '@typescript-eslint/parser' }
