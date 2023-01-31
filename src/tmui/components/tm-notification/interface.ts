@@ -1,5 +1,6 @@
 export interface showOpts{
     label?:string,
     icon?:string,
-	duration?:number
+	duration?:number,
+	color?:string
 }

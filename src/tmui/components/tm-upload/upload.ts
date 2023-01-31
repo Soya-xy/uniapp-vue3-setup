@@ -257,6 +257,7 @@ export class uploadfile {
 		})
 		let filterFIle = cfilelist.filter(item=>!total_uid.has(item.uid)&&!total_url.has(item.url))
 		this.filelist.push(...filterFIle)
+
 	}
 	beforeSuccess(item:file){
 		return Promise.resolve(true);
@@ -308,6 +309,9 @@ export class uploadfile {
 				item.status = "不允许上传"
 				t.filelist.splice(t.index,1,item)
 				t.index++;
+				t.setFileStatus(item)
+				t.fail(item)
+				t.complete(item);
 				startupload();
 				return;
 			}

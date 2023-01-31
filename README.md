@@ -17,6 +17,13 @@ unocss@0.46.5, h5打包后 rpx 未转换成 rem
 
 npm i unocss@0.46.4
 
+## tmui更新
+```
+tmui ver 检测版本
+tmui use 选择 rcli 更新tmui
+```
+
+
 
 ## TODO
 

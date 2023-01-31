@@ -2,6 +2,7 @@ import { fetchConfig,fetchConfigMethod } from './interface';
 let config:fetchConfig={
     url:"",
     data:{},
+	statusCode:200,
     header:{
         // "content-type":"application/json"
     },
@@ -36,16 +37,25 @@ function request(cog:fetchConfig = config,complete?:Function,beforeRequest?:Func
             withCredentials:newConfig.withCredentials,
             firstIpv4:newConfig.firstIpv4,
             async success(result) {
-				if(result.statusCode !==200){
+				
+				if(result.statusCode !==newConfig?.statusCode){
 					reject(result)
 					return;
 				}
                 if(typeof afterRequest === 'function'){
                     let opts = await afterRequest(result);
-                    if(typeof opts !=='object'){
-                        opts = result;
-                    }
-                    result = {...result,...opts};
+                    
+					try{
+						if(typeof opts !=='object'){
+						    opts = result;
+						}
+						if(typeof opts ==='object' && Object.keys(opts)?.length==0){
+						    opts = result;
+						}
+					}catch(e){
+						console.error('tmui:',e)
+					}
+                    result = {...opts};
                 }
                 resolve(result)
             },

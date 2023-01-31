@@ -165,7 +165,7 @@ class themeColors {
 		let isDarkColor = false;
 		//当前颜色对象。
 		let nowColor = { ...this.colors[index] };
-		config.borderWidth = isNaN(parseInt(String(config['borderWidth']))) ? 0 : config['borderWidth'];
+		config.borderWidth = isNaN(parseInt(String(config['borderWidth']))) ? 0 : config['borderWidth']??0;
 		config.borderStyle = config['borderStyle'] ? config['borderStyle'] : 'solid';
 		config.borderDirection = config['borderDirection'] || cssDirection.all;
 		config.linearDirection = config['linearDirection'] || linearDirection.none;
@@ -359,7 +359,7 @@ class themeColors {
 			if(nowColor.hsla.h<180&&nowColor.hsla.h>0){
 				addling = 20
 			}else{
-				addling = -40
+				addling = -37
 			}
 			
 			
@@ -394,28 +394,25 @@ class themeColors {
 				liner_color_1.s = nowColor.hsla.s;
 				if (config.linearDeep == 'light') {
 					liner_color_1.h = liner_color_1.h;//色相需要往前偏移加强色系
-					liner_color_1.s = 100;//饱和度需要加强
-					liner_color_1.l = 78;
-					
-					
-					liner_color_2.l = nowColor.hsla.l;
+					liner_color_1.s = 90;//饱和度需要加强
+					liner_color_1.l = 70;
+					liner_color_2.l = 44;
 
 				} else if (config.linearDeep == 'dark') {
-					liner_color_1.h -= 0;
-					liner_color_1.s = 60;
-					liner_color_1.l = 50;
 					
-					liner_color_2.h -= addling;
-					liner_color_2.s = 60;
-					liner_color_2.l = 50;
+					liner_color_2.s = 90;
+					liner_color_2.l = 26;
+					
+					liner_color_1.s = 90;
+					liner_color_1.l = 50;
 				} else if (config.linearDeep == 'accent') {
 					liner_color_1.h -= 0;//色相需要往前偏移加强色系
-					liner_color_1.s = 96;//饱和度需要加强
-					liner_color_1.l = 50;
+					liner_color_1.s = 90;//饱和度需要加强
+					liner_color_1.l = 54;
 					
 					liner_color_2.h -= addling;//偏移30度的色相搭配色进行渐变
-					liner_color_2.s = 96;//饱和度需要加强
-					liner_color_2.l = 50;
+					liner_color_2.s = 90;//饱和度需要加强
+					liner_color_2.l = 54;
 				}
 
 			}
@@ -469,12 +466,15 @@ class themeColors {
 			if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0) {
 				css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...nowColor.hsla, l: 90 }));
 			}else{
-				//如果是正常的outlined使用深色的边线.如果是text就用浅色的边线.
-				if(config.text&&config.outlined){
+				// text时,使用浅色线条,outlined时与颜色相同
+				if((config.text&&config.outlined)){
 					css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...nowColor.hsla, l: 90}));
-				}else{
-					css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...nowColor.hsla, l: bghsl.l - 10 }));
+				}else if(!config.text&&config.outlined){
+					css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...txcolor}));
+				}else if(!config.text&&!config.outlined&&config.borderWidth>0){
+					css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...nowColor.hsla, l: bghsl.l - 3 }));
 				}
+	
 			}
 		}
 
