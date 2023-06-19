@@ -7,7 +7,7 @@
 <template>
   <view
     :hover-class="(props.url ? ' opacity-7 ' : '  ') + props.hoverClass"
-    :render-whole="true"
+    
     v-if="_blue_sheet"
     :blurEffect="_blurEffect"
     @click="onClick"
@@ -44,7 +44,7 @@
     ]"
   >
     <view
-      :render-whole="true"
+      
       :class="['flex noNvueBorder flex-col flex-1', customClass]"
       :style="contStyle_p"
     >
@@ -147,6 +147,7 @@ const props = defineProps({
     type: String,
     default: "",
   },
+
 });
 const emits = defineEmits([
   "click",
@@ -184,8 +185,10 @@ const tmcomputed = computed<cssstyle>(() => {
   if (_blur.value && tmcfg.value.os == "ios" && _isNvue.value) {
     text = true;
   }
+  let _props_rs = uni.$tm.u.deepClone(props)
+  const customPropsDefault = uni.$tm.u.deepObjectMerge(_props_rs,{blur: _blur.value, text: text })
   return computedTheme(
-    { ...props, blur: _blur.value, text: text },
+    customPropsDefault,
     isDark.value,
     tmcfg.value
   );
@@ -240,6 +243,7 @@ watch(
       nextTick(() => (_blue_sheet.value = true));
     }
     // #endif
+    
   }
 );
 const _bgcolor = computed(() => {
@@ -247,9 +251,14 @@ const _bgcolor = computed(() => {
   if (props.darkBgColor !== "" && isDark.value === true) {
     return `background-color:${props.darkBgColor};`;
   }
-  if (tmcomputed.value.gradientColor?.length === 2) {
+  
+  if (props.linearColor.length==2) {
+    return { 'background-image': `linear-gradient(${tmcomputed.value.linearDirectionStr},${props.linearColor[0]},${props.linearColor[1]})` }
+  }
+  if ( tmcomputed.value.gradientColor?.length==2) {
     return tmcomputed.value.backgroundColorCss;
   }
+
   if (
     _noLevel.value &&
     tmcomputed.value.isBlackAndWhite === true &&

@@ -354,14 +354,16 @@ function save(): Promise<string> {
         destHeight: uni.upx2px(props.height),
         width: props.width,
         height: props.height,
+        // #ifndef MP-ALIPAY
         canvasId: canvasId.value,
+        // #endif
         canvas: canvasObject,
         success: function (res) {
           // 在H5平台下，tempFilePath 为 base64
           su(res.tempFilePath);
         },
         fail: (res) => {
-          console.log("2d save img");
+          console.error(res);
           fa(res);
         },
       },

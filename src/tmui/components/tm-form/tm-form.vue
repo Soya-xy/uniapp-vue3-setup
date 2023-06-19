@@ -32,9 +32,11 @@ import {
   isProxy,
   unref,
   readonly,
+  watchEffect
 } from "vue";
-import { formItem } from "./interface";
+import { formItem,validateResultListType } from "./interface";
 import tmSheet from "../tm-sheet/tm-sheet.vue";
+import { validateFunCall,getObjectVal } from "../tm-form-item/validateFunCall"
 /**
  * 事件说明
  * @method submit 提交表单时触发。
@@ -44,8 +46,9 @@ import tmSheet from "../tm-sheet/tm-sheet.vue";
  */
 const emits = defineEmits<{
   (e: "submit", event: { data: any; validate: boolean }): void;
+  /**只要有数据更改就会触发校验并返回相关数据与submit相同 */
+  (e: "validate", event: formItem): void;
   (e: "reset"): void;
-  (e: "validate"): void;
   (e: "clearValidate"): void;
   (e: "update:modelValue", event: any): void;
 }>();
@@ -95,9 +98,9 @@ const props = defineProps({
 const _modelVal = ref(props.modelValue);
 //备份，重置时，使用。
 const _backModelVal = uni.$tm.u.deepClone(props.modelValue);
-// watchEffect(()=>{
-// 	_modelVal.value = props.modelValue
-// });
+watchEffect(()=>{
+	_modelVal.value = props.modelValue
+});
 //收集的字段。状态。它与_modelVal是有区别的，用户提供的字段，不一定就会在页面中存在，需要与已经渲染的字段进行匹配
 const _callBackModelVal: Ref<Array<formItem>> = ref([]);
 const tmFormComnameId = "tmFormId";
@@ -115,6 +118,7 @@ const safeFormCom = ref([
 //需要对子级，响应的方法。
 // 这里为了更好的性能不再使用vue2版本中children方式，而是采用了provide方式与父子间传递。
 const formFunCallBack = ref("");
+const validateResultList = ref<validateResultListType[]>([])
 provide(
   "tmFormFun",
   computed(() => formFunCallBack.value)
@@ -143,75 +147,80 @@ provide(
   "formCallFiled",
   computed(() => _modelVal.value)
 );
+provide(
+  "validateResultList",
+  computed(() => validateResultList.value)
+);
+let timid:any = NaN;
+let ptimeId:any = NaN
 watch(
   () => props.modelValue,
   () => {
-    _modelVal.value = { ...toRaw(props.modelValue) };
+    clearTimeout(timid);
+    if(formFunCallBack.value == 'validate'){
+      timid = setTimeout(function() {
+		  const result = validate();
+		  validateResultList.value = [...result.result]
+	  }, 100);
+    }
   },
   { deep: true }
 );
 
-let timid = 56321326898746;
+
 function reset() {
-  formFunCallBack.value = "";
-  nextTick(() => {
-    formFunCallBack.value = "reset";
-    clearTimeout(timid);
-    emits("reset");
-    timid = setTimeout(function () {
-      emits("reset");
-      emits("update:modelValue", _backModelVal);
-      _modelVal.value = _backModelVal;
-    }, 500);
-  });
+  formFunCallBack.value = "reset";
+  let dblack = uni.$tm.u.deepClone(_backModelVal);
+  emits("update:modelValue", dblack);
+  emits("reset");
+  _modelVal.value = dblack;
 }
 function clearValidate() {
-  formFunCallBack.value = "";
+  formFunCallBack.value = "clearValidate";
   nextTick(() => {
-    formFunCallBack.value = "clearValidate";
-    nextTick(() => {
-      emits("clearValidate");
-    });
+    emits("clearValidate");
   });
 }
 function submit() {
-  //发送检验状态。
-  formFunCallBack.value = "";
-
-  nextTick(() => {
-    formFunCallBack.value = "validate";
-    let isPass = true;
-    uni.$tm.u.throttle(
-      () => {
-        let par = toRaw(_callBackModelVal.value);
-        for (let i = 0, len = par.length; i < len; i++) {
-          if (par[i].isRequiredError == true) {
-            isPass = false;
-            break;
-          }
-        }
-        // console.log(par,_modelVal.value)
-        // const dataTest = {...readonly(_modelVal.value)};
-        // par.forEach(el=>{
-        //    setObjectVal(dataTest,el.field,el.value)
-        // })
-        //validate是否检验通过。
-        emits("submit", { data: toRaw(_modelVal.value), validate: isPass });
-      },
-      220,
-      false
-    );
-  });
+  formFunCallBack.value = "validate";
+  let isPass = true;
+  uni.$tm.u.throttle(
+    () => {
+	  const result = validate();
+	  validateResultList.value = [...result.result]
+      emits("submit", { data: toRaw(_modelVal.value), ...result });
+	  
+    },
+    220,
+    false
+  );
 }
-//执行表单检验，不会返回任何值。
+//执行表单检验
 function validate() {
-  formFunCallBack.value = "";
-  nextTick(() => {
-    formFunCallBack.value = "validate";
-    nextTick(() => {
-      emits("reset");
-    });
-  });
+  formFunCallBack.value = "validate";
+  let par = toRaw(_callBackModelVal.value);
+  let isPass = true;
+  let list:validateResultListType[]= []
+  for (let i = 0, len = par.length; i < len; i++) {
+	  let item = par[i];
+	  let value = getObjectVal(_modelVal.value,item.field)
+	  const vallist = validateFunCall(item.rules,value);
+	  let rulstVal = {
+		  message: '校验通过',
+		  validator: true,
+	  }
+	  for(let j=0;j<vallist.length;j++){
+		  if(!vallist[j].validator){
+			  isPass = false
+			  rulstVal.message = vallist[j]?.message??'校验通过'
+			  rulstVal.validator = vallist[j]?.validator??true
+			  break;
+		  }
+	  }
+	  list.push({field:item.field,...rulstVal})
+  }
+  
+  return {result:list,isPass,data: toRaw(_modelVal.value),validate:isPass};
 }
 
 function pushKey(item: formItem) {

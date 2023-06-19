@@ -2,7 +2,6 @@
   <view v-if="show" class="flex flex-row" :class="[loading ? 'opacity-5' : '']">
     <tm-translate @end="aniEnd" ref="anitag" name="zoom" reverse :autoPlay="false">
       <tm-sheet
-        hover-class="opacity-6"
         @click="onclick"
         :transprent="props.transprent"
         :color="props.color"
@@ -22,10 +21,12 @@
         :linearDeep="props.linearDeep"
         :margin="props.margin"
         :padding="[wh.px, wh.py]"
+        :border-color="props.borderColor"
+        :linear-color="props.linearColor"
       >
         <tm-icon
           :color="_fontColor"
-          v-if="props.icon"
+          v-if="props.icon&&props.iconAlign=='left'"
           :name="props.icon"
           :followDark="props.followDark"
           :fontSize="wh.fontSize"
@@ -33,11 +34,10 @@
           :userInteractionEnabled="false"
         ></tm-icon>
 
-        <view class="flex-1 flex flex-center">
+        <view class="flex-1 flex flex-center px-12">
           <slot name="default">
             <tm-text
               :color="_fontColor"
-              :_class="props.icon ? 'pl-10' : ''"
               :fontSize="wh.fontSize"
               :followDark="props.followDark"
               :userInteractionEnabled="false"
@@ -52,12 +52,21 @@
             @click="closeTag"
             :followDark="props.followDark"
             v-if="props.closable && !loading"
-            _class="pl-10"
+            :_class="props.icon?'pl-10':''"
             :fontSize="wh.fontSize * 0.8"
             name="tmicon-times"
             :dark="props.dark"
           ></tm-icon>
         </view>
+        <tm-icon
+          :color="_fontColor"
+          v-if="props.icon&&props.iconAlign=='right'"
+          :name="props.icon"
+          :followDark="props.followDark"
+          :fontSize="wh.fontSize"
+          :dark="props.dark"
+          :userInteractionEnabled="false"
+        ></tm-icon>
         <view
           :userInteractionEnabled="false"
           v-if="loading"
@@ -141,17 +150,17 @@ const props = defineProps({
 
   //是否开启标签可选中状态。
   checkable: {
-    type: [Boolean, String],
+    type: [Boolean],
     default: false,
   },
   //只有当checkable为true时有效。
   checked: {
-    type: [Boolean, String],
+    type: [Boolean],
     default: false,
   },
   //标签是否处于加载中。
   load: {
-    type: [Boolean, String],
+    type: [Boolean],
     default: false,
   },
   //标签尺寸
@@ -173,6 +182,11 @@ const props = defineProps({
     type: [String],
     default: "",
   },
+  /**图标在文字的左还是右 */
+  iconAlign: {
+    type: String as PropType<"left"|"right">,
+    default: "left",
+  },
   label: {
     type: [String],
     default: "",
@@ -181,6 +195,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  beforeClose:{
+    type:Function,
+    default:null
+  }
 });
 const emits = defineEmits(["click", "close", "change", "update:checked"]);
 
@@ -200,7 +218,7 @@ const checked_com = computed({
   get: function () {
     return _checked_.value;
   },
-  set: function (val) {
+  set: function (val:boolean) {
     _checked_.value = val;
     emits("update:checked", _checked_.value);
   },
@@ -258,7 +276,7 @@ const wh = computed(() => {
   };
 });
 
-function onclick(e: any) {
+function onclick(e:TouchEvent|MouseEvent) {
   emits("click", e);
   if (loading.value) return;
   checked_com.value = !checked_com.value;
@@ -267,9 +285,17 @@ function aniEnd() {
   show.value = false;
   emits("close");
 }
-function closeTag(e) {
+async function closeTag(e:TouchEvent|MouseEvent) {
   if (loading.value) return;
   e.stopPropagation();
+  let p:Function|boolean = true;
+  if(typeof props.beforeClose  == 'function'){
+    p = await props.beforeClose();
+    if(typeof p == 'function'){
+      p = await p();
+    }
+    if(!p) return;
+  }
   if (anitag.value) {
     anitag.value.play();
   } else {

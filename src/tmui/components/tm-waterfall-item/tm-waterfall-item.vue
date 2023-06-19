@@ -1,5 +1,6 @@
 <template>
   <view
+	@click="onClick"
     ref="itemWall"
     class="absolute itemWall"
     :style="[
@@ -17,20 +18,27 @@
       unit="px"
       :color="props.color"
       _class="flex flex-col flex-col-top-start"
+	  :eventPenetrationEnabled="true"
     >
-      <tm-image
-        @click="onImgClick"
-        :round="props.round"
-        v-if="props.img"
-        @load="imgLoadSuccess"
-        :src="props.img"
-        unit="px"
-        :height="_nodeInfo.imgHeight"
-        :width="_nodeInfo.imgWidth"
-      ></tm-image>
-      <view class="flex flex-col flex-1 flex-col-top-start">
-        <slot></slot>
-      </view>
+
+		<tm-image
+          v-if="!imgerror&&props.img"
+          @click="onImgClick"
+          :round="props.round"
+          @load="imgLoadSuccess"
+          @error="error"
+          :src="props.img"
+          unit="px"
+          :height="_nodeInfo.imgHeight"
+          :width="_nodeInfo.imgWidth"
+        ></tm-image>
+		  <view class="flex flex-row flex-row-center-center" :userInteractionEnabled="false" v-if="imgerror" :style="[imgerror?{height:_nodeInfo.imgWidth+'px',width:_nodeInfo.imgWidth+'px'}:'']" >
+			<tm-icon name="tmicon-exclamation-circle"></tm-icon>
+		  </view>
+		  
+		  <view class="flex flex-col flex-1 flex-col-top-start">
+			<slot></slot>
+		  </view>
     </tm-sheet>
   </view>
 </template>
@@ -54,13 +62,15 @@ import {
 } from "vue";
 import tmSheet from "../tm-sheet/tm-sheet.vue";
 import tmImage from "../tm-image/tm-image.vue";
+import tmIcon from "../tm-icon/tm-icon.vue";
 import { itemParenSG } from "../tm-waterfall/interface";
 
 // #ifdef APP-PLUS-NVUE
 const dom = uni.requireNativePlugin("dom");
 // #endif
 const proxy = getCurrentInstance()?.proxy ?? null;
-const emits = defineEmits(["img-click"]);
+const emits = defineEmits(["img-click",'click']);
+const imgerror = ref(false)
 const props = defineProps({
     //封面图片。
     img: {
@@ -115,6 +125,20 @@ function imgLoadSuccess(e) {
   setTimeout(() => {
     nextTick(() => nvuegetClientRect());
   }, 50);
+}
+function error(){
+  const wx_width = _width.value;
+  const wx_height = _width.value;
+  //计算缩放的宽和高。
+  let _w = _width.value;
+  let _height = _w / (wx_width / wx_height);
+  console.log(wx_height)
+  _nodeInfo.value = { ..._nodeInfo.value, imgWidth: wx_width, imgHeight: wx_width };
+  setTimeout(() => {
+    nextTick(() => nvuegetClientRect());
+    imgerror.value = true;
+  }, 50);
+
 }
 function getParent() {
   //父级方法。
@@ -182,7 +206,11 @@ async function pushKey() {
     _nodeInfo.value = pos;
   }
 }
-function onImgClick(e) {
-  emits("img-click", e);
+function onImgClick(e:TouchEvent) {
+  emits("img-click", _nodeInfo.value);
+}
+/** 整个项目被点击。 */
+function onClick(e:TouchEvent){
+ emits("click",_nodeInfo.value)
 }
 </script>

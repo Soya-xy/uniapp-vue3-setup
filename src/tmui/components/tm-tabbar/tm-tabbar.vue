@@ -5,6 +5,7 @@
       width: _width + 'px',
       height: _totalBarHeight + 'px',
       transform: `translateY(${props.bottom}rpx)`,
+	  zIndex:props.zIndex
     }"
   >
     <!-- 			@click="emits('click', $event)"    -->
@@ -118,6 +119,12 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  /** 在nvue上没有用处，请自行放到最尾部的地方。 */
+  zIndex: {
+    type: [Number],
+    default: 200,
+  },
+  
 });
 let sys = uni.getSystemInfoSync();
 const _width = computed(() => uni.upx2px(props.width) || sys?.windowWidth || 750);
@@ -199,7 +206,7 @@ watch(_activeIndex, () => {
   align-items: center;
 }
 .tabbar {
-  z-index: 200 !important;
+  
 }
 /* #endif */
 /* #ifndef APP-NVUE */

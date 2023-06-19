@@ -2,14 +2,189 @@
 title: 关于tmUi3.0的更新日志
 ---
 
-<dirtoc></dirtoc>
-
 ##### 开发指南 tmui.design
 
 # TMUI 3.0 by tm-vuefity 3.0
 
 ### :couplekiss: 更新日志
+
+## 3.1.06（2023-6-xx）
+* [注意事项]3.8.3 uni sdk发布了，经过测试可以编译nvue app了。可能第一次编译会报appprieview的标点符号错误，
+我已经找到了问题是：uni sdk自己编译的html文件末尾少了个";"导致的，重新编译就正常预览了。但依然无法编译到支付宝。如果要编译到支付宝请继续使用3.6.18的 uni sdk见gitee库的备份json文件。
+* [修复]tm-dragList数据变动不更新问题。
+* [修复]tm-slide-switch，无法手动更改状态值。解决页面无法滚动问题
+* [修复]signBoard,qrCode组件在支付宝中无法保存和获取图片资源。
+* [文档]Scrolly文档现在重写编写，之前的文档存在错误，误导了大家的使用，导致使用出错。
+* [修复]tm-translate，组件ref的play方法失效，导致手动播放动画无法播放。
+* [修复]tm-segtab，动态修改list时，定位样式错乱。
+* [优化]tm-tag，增加了属性：before-close，关闭前执行的回调。
+* [优化]tm-upload,增加show-status 属性，以控制是去酒吧显示状态栏。
+* [优化]tm-roll-notice,list类型增加了object,object[]类型支持，也同步增加了rangeKey来指定显示的文本字段。
+* [优化]修正util.getUid函数的类型。
+* [优化]tm-waterfall,见[PR功能日志](https://gitee.com/LYTB/tmui-design/pulls/159)
+* [优化]tm-tabs,tm-scrollx，隐藏在安卓上的滚动条。
+* [优化]tm-icon，文档少了一个属性customicon，现已修正了文档。
+* [修复]tm-tabbar-item，少了一个属性customicon，导致如果你填写了自定图标名称，不能显示，要显示需要开启这个属性为true
+* [优化]tm-side-menu，属性单词require修正为required。
+* [修复]tm-button,loading状态下还能触发click.
+* [修复]tm-image,margin左右间距缺省第二个参数读取。
+## 3.1.05（2023-5-15）
+* [文档]升级了文档网站到vitepress
+**[重要提示]目前来说从3.7.10-3.7.11无法编译到nvue。3.8.12 alpha及3.7.9(含以下)可以编译到nvue.然后3.6.18(不含，以上)无法编译到支付宝。原因是uni sdk自己的插件问题，我无力修复。我只能把坑放到这大家避免。想要编译到支付宝请参考3.1.04的说明。**
+**如果uni升级解决了问题，我会在日志中说明。如果你可以解决上面问题欢迎到我的gitee上提供解决方案。感谢。**
+* [优化]3.1.05开始，兼容你配置的darkMode模式。当你开启了darkMode，内部不再设置状态栏，底部菜单，的颜色设置，
+* 使用你自己的配置的theme.json文件。这个好处是在app,微信暗黑下没有闪白。
+* [优化]tmapp，文件不再手动设置内容宽和高。采用flex方案代替100%
+* [优化]tm-cascader，边线改为内边线。取消单独边线，影响事件触发。
+* [修复]Cascader组件在vue页面布局问题。
+* [优化修复]city-picker,新增了duration,打开弹出的动画时间，同时修复弹出框右上角文字颜色未跟随color属性。
+* [优化]Coupon，新增了disableColor,disableBgColor
+* [优化]小程序分享功能，在全局的config中新增shareDisable,是否禁用全局分享，默认禁用。[如何自定分享见文档](https://tmui.design/start/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%88%86%E4%BA%AB.html)
+* 修改了一些其它代码
+## 3.1.04（2023-4-26）
+* [提醒]刚发布的uni sdk 3.7.10还是未修复编译至支付宝时出现的编译问题，导致支付宝不可用。经过我测试哪怕使用官方的uni sdk也是有问题无法编译到支付宝小程序。
+* 因此我特意在我的gitee库中，保存了一份文件叫：package - alipay.json，如果要编译支付宝的把node_modules和package-lock.josn删除，
+* package.json里面的内容替换成ackage - alipay.json内容，再执行npm i,之后即可编译到支付宝。
+* 如果你们要使用最新的，又想用支付宝的，请自己向官方提bug（别让我提，我提太多了）。
+* [更新]现在全局配置表那已经允许配置按钮的全局配置属性，支持的字段见文档类型。
+* [新增]tm-fly-view，组件，是一个抛物线组件，从触发位置，把目标元素以抛物线的效果抛至目标点位，主要场景交互有：购物车添加商品，收藏夹等 一些交互效果的元素。
+* [修复]util在h5端setClipboardData设置剪切板内容，返回类型不正确。
+* [修复]tm-form无法监测对model整个全部重新赋值的改变。
+* [优化]tm-sku，组件进行了重新设计。具体见demo示例，不向下兼容。
+* [优化]tm-slide-switch，组件进行了重新设计。现在可以用来作为聊天列表使用了。uni的wxs坑至今无法修复。本次放弃wxs，改回原来touch事件。新增了：open,close事件触发。并且opoen-status也开放双向绑定了。可双向打开和关闭。
+* [优化]modal,overlay,drawer增加了teleport属性以便在h5禁用。
+* [修复]修复Image组件冗余代码
+* [新增]新添加一个第三方请求库，位置：tmui->tool->lwu-request.ts,暂时没有文档。代码非常工整。且条理清晰。请查看源码使用。由于大小原因。这个库合并为单独使用。如果需要使用，请自行导入使用。
+* 该请求库，有队列请求，错误重试控制请求，中断请求，拦截器配置等特性，功能强。该库原作者链接:[访问](https://ext.dcloud.net.cn/plugin?id=11409)，已经通过pr方式合并到tmui,tool中，版权同tmui版权，免费商用。
+* [修复]input组件在非微信小程序平台，如果不绑定值，可能在事件中不会返回相关值。
+* [优化]tm-picker,新增duration属性弹出动画时间。
+* [优化]tm-drawer,添加了beforeOpen,beforeOk,beforeCanse属性，后两者如果的函数如果返回fase会阻止关闭弹层。
+* [优化]tm-avatar，添加了iconColor属性，用于单独定义图标颜色。如果不提供使用主题色
+* [优化]tm-upload,添加status-code属性，用于服务状态码自定成功时的值，默认200
+* [修复]tm-modal,在vue页面的情况下添加border导致窗口宽度举出隐藏，边线缺失。
+* [修复]tm-table,当所有数据的值为空数组时[]，会导致bug。
+* [关于暗黑闪白问题]由于uni在最新的3.7.3+已经出了darkMode配置方法，我原先的一些方法将注销不再使用。如果你们的app,微信,h5出现暗黑闪白问题，请按照官方的配置方法去配置解决。[官方的暗黑配置教程](https://uniapp.dcloud.net.cn/tutorial/darkmode.html)
+* [优化]tm-waterfall-item,新增了click事件，当整个项目被点击时触发的方法。
+* [优化]tm-tabbar,增加了zIndex属性，注意:nvue是没有效果的，需要放到页面最后才能是页面的最顶部。
+* [优化]tm-time-between，start,end属性，可动态设置
+* [优化]css库，增加了一个类：flex-col-full，这个功能类似于类flex-1，我们知道在flex-row横向时，内只有一个元素时占比1就是相当于我们的100%宽度。但如果是纵向col布局时，
+* 如果让宽度100%呢，使用类flex-col-full就行了。一直这个属性缺失，今天补上。
+* [优化]form-item，组件增加属性errHeight，自行控制底部错误空间的高度。同时提供error插槽，自行显示当前错误的格式，插槽携带了错误信息的数据,见文档
+* [修复]picker,time-picker在支付宝样式问题。
+## 3.1.03（2023-4-1）
+* [新库]重新编写发布了tm-render库，不再引入第三方渲染库，而是采用了自写的轻量级canvas渲染库，目前暂不支持Nvue(后续兼容)，
+* 使用超级简单，具体[请看demo实例](https://tmui.design/h5/#/pages/render/pie)
+* ![tmCv](https://cdn.tmui.design/public/design/tmcvDemo.gif)
+* [优化]autoDark，优化，可能切换自动时有混乱的表现。
+* [优化]tm-text,主题判断优化下，增加容错率。
+* [优化]tm-form,校验优化，大家对校验的要求较高，希望给出手动校验值，以及校验后需要返回每一个字段校验的结果，因此我重构了校验流程，让校验变得更简单,方便手动或者自动校验功能。
+* 现在不管是submit还是手动vailidate校验，都将返回isPass:是否校验通过，和result[]校验结果列表集,以及绑定的model数据三个字段。
+* [修复]因为新的配置表采用了对pinia实例的插件安装，导致已有pinia store的pinia实例丢失，各位在引用自己的pinia实例时，记得在引入我的tmui之前引入创建实例即可，详见快速上手文档。
+* [优化]最近不少人反应运行到app报错，经过多次配合排查，发现是大家使用了pinia的持久化插件导致。帮本次升级针对pinia升级优化。大家安装pinia插件时，一定要在app.use(tmui)之前引入安装自己的插件。
+* [优化]actionMenu的list数据结构增加了属性openType，方便使用小程序和应用按钮的开放功能
+* [优化]picker,modal,增加了zIndex属性。
+* [优化]tm-icon，自定图标如果名称出现多个-时可能无法显示。
+* [修复]颜色计算公式rgbaToHsla转换精度有误差导致颜色值会相差0.6-1之间。
+* [优化]uni.getsystem下取值hostTheme无效，改为osTheme取值。
+## 3.1.02（2023-3-25）
+* [重要]cli相关依赖全部升级到最新，pinia,vite,echart,uni sdk(3.7.9),经过本人测试优化的挺好，建议大家可以升级。如果你是使用cli开发
+* 请下载我的最新cli包[前往下载](https://tmui.design/doc/start/%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.html#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9)，插件版本号已经帮你配置好。替换packejson后，请执行```npm cache clean --force```清下缓存包。然后再```npm i --save```执行安装依赖
+* 如果你是hbx项目，目前无法升级到379（官方未发布）,总的来说建议升级，经测试nvue端有改善，已经支持动态主题投影，不过还是要请大家自行打包我的iosdemo自行比较。
+* [优化]tm-upload,增加imageModel,图片的缩放模式
+* [优化]tm-city-picker,增加了两个导出函数，用于小程序地图选点时，返回的城市名称时，可用于ref函数进行名称反选出index索引或者id数组，方便后台交互。
+* [修复]tm-collapse-item在vue页面展开失效（nvue不受影响）
+* [修正]tm-tabs，默认的rangkey之前是title，我测试时，写成了key，发布时忘记改回，对不起各位 。
+* [更新demo]因为filter已经支持了footer底部操作固定功能，因demo相应更新。
+* [修复]utils下的预览图片方法preview，某些情况下判断有误。
+* [优化]tm-sheet，特殊的合并写法，在微信小程序的不同sdk版本库可能会提示非常多的警告。
+* [修复]tm-form,如果设置了某个字段与formitem同时切换隐藏时，且该字段同时存在于form的model中，会触发来回切换造成校验混乱。
+* [优化]config中，下个版本将默认关闭组件库自动跟随系统的暗黑效果，如果要开启请按文档配置即可。
+* [修订文档]更新一些文档。
+## 3.1.01（2023-3-20）
+* [紧急]现紧急修复一个问题，因uni SDK底层渲染机制（时机）的一个bug(我认为是bug,但无法确认他们的渲染逻辑顺序只能推测。)，
+* 如果想知道原理的[可看这，戳我](https://gitee.com/LYTB/tmui-design/issues/I6O1AW)，导致主题在app(vue,nvue)真机上失效
+* [优化]tm-tabs，增加了rang-key来自定取值标题的字段，默认是通过title,唯一标识key,也可以写成id字段，优化了类型校验。
+* [修复]tm-sheet,tm-tag,tm-button渐变失效
+* [修复]tm-overlay,禁用底部内容滚动后，如果内部再套入scroll-view或者view的scrollview造成无法滚动。这一问题影响了所有弹层类组件。
+* [修复]tm-image,组件设置margin，会影响原有图片宽度。
+* [修正文档错误]
+## 3.1.0（2023-3-16）
+* **[非常重要]版本升级后，3.1.0之前的版本需要作下兼容处理：即以前的router,theme文件夹不是必要的了，所以升级后不会读取，需要你手动配置并导入到tmui配置表中，以及main.ts中也改动了安装方式。
+总体来讲就是变得更简单了。不再绑定和要求一些文件配置了，全部为可选。见文档：[进阶指南](https://tmui.design/doc/advanced/tmui全局配置.html),并了解如何配置路由，主题，以及一些其它的全局配置。**
+* [基础工具更新]所有文档已经迁移到香港服务器，如果提示网站服务停用，请刷新页面缓存。并且会提供相关的打包接口，以后下载cli和demo包将会在服务器上自动打包最新的版本供你们下载。而不需要我手动来升级打包了.
+* [基础工具更新]tmui-cli更新路径：以后将提供可视化安装，并可以更方便的更新插件和安装包，并直接下载模板到安装项目中。极大的方便cli安装方式
+* [基础工具更新]文档提供了【进阶指南栏目】里面有详细的介绍如何配置全局属性，以及ts文件中的Tmui类型命名空间的使用和提示，以及教程，教会你如何配置vsocde来开发hbx uni项目。这次主要的更新是完善vscode中的vue3 ts类型提示以及校验，更体现vue3的优势所在。不管是全局的uni.xx挂载和pinia的store.xx挂载，我都内嵌到全局的类型提示了。你只要输入你的pinia模块和uni.都是会提示全局的属性和方法.
+* [通用]部分常用组件，button,tag,sheet增加了border-color属性，如果提供了的话，在亮色下将不采用主题匹配的值，而是采用你提供的。暗黑模式以及切换主题时，border-color会采用切换的计算的颜色值。
+也就是说只有当为默认主题时才会使用自定义的border-color。
+* [优化]tm-waterfall-item瀑布组件，如果图片加载错误返回一个占位空间提示加载错误。
+* [修复]tm-overlay,增加了节流函数，防止点击过快导致显示异常。
+* [优化]jstool即uni.$tm.u下面的工具函数新增了几个非常实用的操作方法，见文档。并优化了部分方法代码实现。
+* [修复+优化]tm-popover,修复width属性失效，并增加label插槽，以实现类似淘宝菜单的小弹窗，出现更多按钮，效果见demo
+* [修复]tm-button,font-color设置为自定颜色或者主题色时，可能会导致混乱，使用按钮颜色自定义时出现错误。
+* [优化]tm-tag，新增一个属性iconAlign用于展示图标显示的位置，左还是右。
+* [重要]因为uni在最新的3.7.3升级了vite版本号，会导致大家使用cli升级sdk失败。大家只要在package.json中:
+"vite": "^4.1.4","@vitejs/plugin-vue-jsx": "^2.1.1"这两个版本号修改下，然后再修改sdk号：3.0.0-3070320230222002
+再执行：```npm install --force``` 就可以了,但实测可能是uni官方还未提供升级相关插件，即便成功了，也会编译出异常的平台。慎重升级，等uni完善吧。
+* [优化]tm-app,开放了bgimg属性，现在可以设置app背景图片了，注意的是，设置了图片背景颜色会失效。
+* [新增组件]tm-sort,宫格拖动排序，注意事项见文档。
+* [优化]tm-image组件取消了二次缓存方法（之前是一张图片会加载两次的,第二次是缓存结果），现在取消了。
+* [优化]minx.ts中的computedClass属性计算，可能带来的隐患错误。
+* **tm-translate修改了动画属性将影响部分平台，zoom效果没有了，包括一些性能。将影响下面提到的嵌套功能。**
+* **实现嵌套原理：微信，支付宝使用root-portal组件，H5使用teleport组件，NVUE本身不受限制**
+修改升级原因如下：
+1. 广大网友希望弹层类,能够嵌套的使用。
+2. 现在所有的弹层组件：支持压屏嵌套，内弹层（只遮盖组件内部）
+3. **【微信,支付宝,NVUE端,H5】不受性能影响,因为有原生组件支持**
+4. 除了上述3点中的四个平台将影响部分动画性能，因css3中left,right,bottom动画，相对css3的transform效率性能要打折。具体可见css3文档.
+* 预告：我已经跟随uni适配theme暗黑模式，但uni sdk在cli vue3下有bug，根本无法切换，一切换就报变量错误。我也无奈，因此等uni稳定后，再适配，就可以解决暗黑切换闪白问题。
+* [优化]tm-overlay关闭了拖动遮罩时底部内容也可滚动，影响到所有弹出组件。即所有弹出组件触摸拖动遮罩时都将无法滚动页面。
+* [修复]在小程序下切换暗黑时，导航标题栏系统的原生字体未跟随变化。
+* [增强]tm-float-button,增加了弹出子菜的动画。修复子菜单点击事件填写错误。
+* [修复]tm-table,数据监测异常，导致循环卡页面。
+* [优化]tm-collapse，增加了折叠动画，不建议嵌套使用，会影响性能。nvue端，如果需要展开动画，需要指定属性contentHeight内容高度。
+* [修复]tm-descriptions，子组件在非nvue端可能等比分不准确。
+* [修复增强]tm-button,新增disabledColor禁用色，当按钮被禁用时展现的颜色，默认grey-1,以及修复load时按钮样式没有改变。当禁用或者load时去除hover效果。
+* [优化]tm-calendar,tm-calendar-view,新增了format属性，用于对modelStr(输出项)字段属性的时间格式化，非modelValue的格式化。
+* [优化]tm-tabs,增加showTabsLine,用于开启线性动画后，是否隐藏底部灰色的导轨。
+* [TS增强] 不知道vscode从哪个版本的ts开始原有的类型合并，对于我框架的类型与Uni官方类型合并出现了问题。导致在页面输入uni.$tm时不出现提示和注释
+带来编译的不方便。因此变更了类型合并处理，解决部分类型报红的问题。
+* [优化]tm-progress，进度条重构了圆环代码，对圆和半圆增加了进度动画,引入了tween.js增加了15kb大小。
+* [优化]tm-form-item,增加：showTopErrorGap属性，用于隐藏顶部的错误间隙，但保留底部，以减少布局间的空隙
+* [优化]tm-chart,组件，新增ref方法getImg导出图表图片功能
+* [优化增强]tm-button,tm-sheet等组件加入了公共属性linear-color,当开启linear时，如果你提供了linear-color颜色组属性，将使用你提供的渐变方案。如果不提供还是保持原样的自动渐变方案
+* [增强]所有picker类弹层，以及drawer抽掘,modal弹层增加了相关的默认插槽来触发弹层。不用再去定义和绑定show相关变量来控制显示隐藏，提高布局效率。
+* [utils]routerTo方法的类型提示有误。
+* [修复]tm-tabs-pane,属性count不更新的问题。
+* [修复]tmFormItem,修复layout="vertical"时，非nvue页面样式错乱。
+* 修善了部分ts类型文件。
+* 文档示例错误修改
+## 3.0.9（2023-2-13）
+* **[新增组件]tm-adsorb,吸附器,主要功能：随意拖动后会在屏幕两侧自动吸附。也可以关闭吸附功能，达到任意拖动。nvue使用Binding，非nvue使用wxs实现，请注意兼容**
+* [修复]tm-button,属性fontColor失效
+* [修复优化]tmFilterMenu组件在作为悬浮时是可能展开后内容位置不对，因此增加了fixed属性，用于悬浮时使用，让本组件跟随屏幕滚动，自动吸附顶部展开条件筛选菜单。
+* [优化]tm-slide-switch，现在已经可自行设定rightWidth宽度了，即展开的宽度，不再是固定值。
+* [修复]tm-col,在vue页面(nvue不受影响)时内容未能100%撑开。
+* [修复]tm-form,在nvue页面(vue不受影响),布局为竖向时，标题内容过长时不会自动断行。
+* [修复]tm-calendar-view,tm-calendar,日历范围忘记引入函数了。导致范围选择报错.
+* [修复]tm-city-picker,增加cityLevel，城市选择级别，这个功能一直都有，但我忘记放出来给大家用了。导致文档写了，但实际用不上。
+* [修复]tm-rate,单词错误，导致监听变量失败，赋值失败。
+* [修复]tm-picker,tm-time-picker内部参数单词拼写错误。
+* [修复]tm-images，的loadIcon,errorIcon两个属性未启用的问题,同时增加了load插槽
+* [优化]virtual虚拟列表增加top插槽，固定某个内容跟随滚动在顶部。具体见文档。
+* [优化]tm-input,增加searchFontColor搜索按钮字体颜色.
+* [优化]tm-button,目前删除了授权的快捷功能，因为微信收回了获取头像昵称规则。
+* [修复]tm-more,util.ts见：[gitee pull](https://gitee.com/LYTB/tmui-design/pulls/106)
+* [优化]tm-dropMenu，增加haveArrow是否显示箭头。
+* [优化]tm-upload,新增：fileType，选择图片的场景值，默认为，相册和相机 中选择。
+* **[大改]tm-table,表格已发生重大改变，不向下兼容。请注意备份老版本并谨慎升级本组件。**
+* [修复]tm-keyborad,数字键盘在vue页面发生布局错误。
+* [修复]tm-translate，在非nvue端未触发开始和结束事件。
+* [修复]tm-tag，在开启可关闭选项时，关闭后，还占位了空间，并未真正消失。
+* [优化]tm-filterMenu-item，属性为动态响应可修改。
+* [优化]tm-action-menu，修改了样式
+* 修改部分示例
 ## 3.0.89（2023-1-9）
+* **重要这是农历年，年前最后一个版本，祝大家农历新愉快**
 * [新增]tm-color-view，颜色选择器。
 * [新增]tm-sku,商品属性选择器
 * [重要优化]tm-chart图表组件，从3.0.89开始已经兼容nvue平台。并且在nvue下性能是最棒的。具体看文档。同时去除掉了stop事件，允许页面事件穿透。
@@ -67,6 +242,22 @@ title: 关于tmUi3.0的更新日志
 * [修复]tm-time-view,当显示其它不同属性时，会导致选项值不正确。[感谢](https://gitee.com/LYTB/tmui-design/pulls/94)
 * [增强]tm-comment，新增属性autoFormatTime是否自动格式化处理时间[见此，感谢](https://gitee.com/LYTB/tmui-design/pulls/93)
 * 修改文档错误部分.
+## 3.0.87（2022-12-5）
+* [新增]tm-time-between组件，这是一个实用组件，用来时间日期的范围选择（相比日历范围选择，这个可以精确到时分秒）
+* [新增]tm-side-menu组件，侧边栏导航组件，通常用于商城分类，端口分类等场景
+* [修复]tm-upload如果在onStart中阻止了上传,页面上没有更新阻止状态.因为增加双向绑定功能后，内部我手抖，写错了值，导致绑定后，反而丢失了数据。抱歉。
+* 上传组件,同时开启了预览模式,新增了showSort:是否开启排序功能,可以对已上传图片位置排序.
+* [修复]tm-picker,新增的immediateChange属性写错了位置.
+* [修复]utool js库中的方法函数getUid,有个致命的bug,因为组件所有子组件是通过这个函数生成的唯一id,在组件内出现较多子组件时,能极低的概率出现雷同的id,导致数据丢失.现已更换了生成方法.
+* [修复]tm-time-view参数容错率以及一处赋值错误。,在nvue端修复了时间不准确的错误(这里一个uni的稿笑bug就是我在里面写了一行注释,导致nvue时间错乱,我已经向uni提交了bug,我自己也避免写注释)
+* [修复]tmFilterMenu组件标题，在暗黑下，未自动适应字体色。
+* [优化]tm-icon为了对齐准确,如果你设置lineheight=0,内部取消行高选项属性.
+* [优化]tm-text:行高问题,lineHeight='auto'自动计算行高,lineHeight=0时,由系统接管行高,>0时,自定义行高.
+* [修复]tm-inpu,type='textarea'时,在h5端的兼容问题
+* [优化]fetc请求中新增config属性:statusCode:200,默认200表示请求成功.如果想自定义其它值为成功标志,需要自定设置.
+* [其它优化](https://gitee.com/LYTB/tmui-design/issues/I63SJK)
+* 添加了自定义微信分享的说明文档.
+
 ## 3.0.86（2022-11-29）
 * ------------uni SDK Bug提醒,因官方未修复,以下为记录我踩过的坑----------------
 * uni sdk bug集合见我提交的ask 请前往[UNIASK](https://ask.dcloud.net.cn/question/158252)

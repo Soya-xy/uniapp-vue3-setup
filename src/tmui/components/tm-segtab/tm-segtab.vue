@@ -169,7 +169,7 @@ const props = defineProps({
 });
 const leftPos = ref(-100);
 const leftWidth = ref(0);
-let timid = uni.$tm.u.getUid();
+let timid:any = uni.$tm.u.getUid();
 const _list = computed(() => {
   let templist = [];
   for (let i = 0, len = props.list.length; i < len; i++) {
@@ -217,14 +217,7 @@ async function itemClick(index: number, id: number | string) {
   emits("update:modelValue", _cId.value);
 }
 watch(
-  [() => props.modelValue, () => props.list],
-  () => {
-    _cId.value = props.modelValue;
-  },
-  { deep: true }
-);
-watch(
-  [_cId],
+  [_cId,() => props.modelValue, () => props.list],
   () => {
     initPos();
   },

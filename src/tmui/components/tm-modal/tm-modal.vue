@@ -1,150 +1,116 @@
 <template>
-  <tm-overlay
-    ref="overlayAni"
-    blur
-    :duration="props.duration"
-    @close="overclose"
-    @open="OverLayOpen"
-    @click="overlayClickFun"
-    :align="align_rp"
-    :overlayClick="false"
-    v-model:show="_show"
-  >
-    <tm-translate
-      :reverse="reverse_rp"
-      :width="anwidth"
-      :height="anheight"
-      ref="drawerANI"
-      :auto-play="false"
-      :name="aniname"
-      :duration="props.duration"
-    >
-      <view
-        @click.stop="$event.stopPropagation()"
-        :style="[
-          { width: anwidth, height: anheight },
-          !props.transprent ? tmcomputed.borderCss : '',
-          !props.transprent ? tmcomputed.backgroundColorCss : '',
-          !props.transprent ? tmcomputed.shadowColor : '',
-          customCSSStyle,
-        ]"
-        :class="[round_rp, 'flex flex-col overflow ', customClass]"
-      >
-        <view
-          class="flex flex-row px-24"
-          style="height: 44px"
-          :class="[props.closeable ? 'flex-row-center-between' : 'flex-center']"
-        >
-          <slot name="title">
-            <tm-text
-              :_style="props.titleStyle"
-              :dark="props.dark"
-              :followTheme="false"
-              _class="text-overflow-1 text-weight-b text-size-m text-align-center"
-              :label="props.title"
-            ></tm-text>
-          </slot>
-          <tm-icon
-            v-if="closeable"
-            _class="opacity-3"
-            name="tmicon-times-circle-fill"
-            :fontSize="32"
-            @click="close"
-          ></tm-icon>
-        </view>
-        <scroll-view scroll-y :style="[props.height ? { height: contentHeight } : '']">
-          <view class="px-32">
-            <slot name="default">
-              <tm-text
-                :font-size="30"
-                :dark="props.dark"
-                :followTheme="false"
-                :label="props.content"
-                _style="line-height:46rpx"
-              ></tm-text>
-            </slot>
-          </view>
-        </scroll-view>
-        <view class="flex flex-row" :class="[props.splitBtn ? 'pa-32' : '']">
-          <slot name="button">
-            <view v-if="!props.hideCancel" class="flex-1 overflow" style="height: 90rpx">
-              <tm-sheet
-                :dark="props.dark"
-                :followTheme="true"
-                :isDisabledRoundAndriod="true"
-                @click="cancel"
-                :height="90"
-                :linear="props.cancelLinear"
-                :linearDeep="props.cancelLlinearDeep"
-                text
-                :color="props.cancelColor"
-                :_class="['flex-center overflow flex']"
-                :paren-class="
-                  props.splitBtn ? 'round-' + props.btnRound : 'round-bl-' + props.round
-                "
-                :margin="[0, 0]"
-                :padding="[0, 0]"
-              >
-                <tm-text
-                  _class="text-weight-b"
-                  _style="line-height:90rpx"
-                  :dark="props.dark"
-                  :followTheme="false"
-                  :userInteractionEnabled="false"
-                  :label="props.cancelText"
-                ></tm-text>
-              </tm-sheet>
-            </view>
-            <view
-              v-if="props.splitBtn && !props.hideCancel"
-              class="overflow"
-              style="width: 24rpx"
-            ></view>
-            <view
-              class="flex-1 flex"
-              :class="[okLoading ? 'opacity-5' : '', 'overflow']"
-              style="height: 90rpx"
-            >
-              <tm-sheet
-                paretClass="flex-1"
-                class="flex-1"
-                :dark="props.dark"
-                :followTheme="true"
-                :isDisabledRoundAndriod="true"
-                @click="ok"
-                :height="90"
-                :linear="props.okLinear"
-                :linearDeep="props.okLlinearDeep"
-                :color="props.okColor"
-                :margin="[0, 0]"
-                :_class="['flex-center overflow']"
-                :paren-class="
-                  props.splitBtn ? 'round-' + props.btnRound : 'round-br-' + props.round
-                "
-                :padding="[0, 0]"
-              >
-                <view :userInteractionEnabled="false" class="flex flex-row">
-                  <view v-if="okLoading" class="pr-10">
-                    <tm-icon
-                      :userInteractionEnabled="false"
-                      name="tmicon-loading"
-                      spin
-                    ></tm-icon>
-                  </view>
-                  <tm-text
-                    _class="text-weight-b"
-                    :dark="props.dark"
-                    :userInteractionEnabled="false"
-                    :label="props.okText"
-                  ></tm-text>
-                </view>
-              </tm-sheet>
-            </view>
-          </slot>
-        </view>
-      </view>
-    </tm-translate>
-  </tm-overlay>
+	<view>
+		<!-- #ifdef APP-NVUE -->
+		<view @click="opens">
+			<view :eventPenetrationEnabled="true"><slot name="trigger"></slot></view>
+		</view>
+		<!-- #endif -->
+		<!-- #ifndef APP-NVUE -->
+		<view @click="opens"><slot name="trigger"></slot></view>
+		<!-- #endif -->
+		<tm-overlay
+			:zIndex="props.zIndex"
+			ref="overlayAni"
+			blur
+			:duration="props.duration"
+			@close="overclose"
+			@open="OverLayOpen"
+			@click="overlayClickFun"
+			:align="align_rp"
+			:overlayClick="false"
+			v-model:show="_show"
+			:teleport="props.teleport"
+		>
+			<tm-translate :reverse="reverse_rp" :width="anwidth" :height="anheight" ref="drawerANI" :auto-play="false" :name="aniname" :duration="props.duration">
+				<view
+					@click.stop="$event.stopPropagation()"
+					:style="[
+						{ width: anwidth, height: anheight,boxSizing:'border-box'},
+						!props.transprent ? tmcomputed.borderCss : '',
+						!props.transprent ? tmcomputed.backgroundColorCss : '',
+						!props.transprent ? tmcomputed.shadowColor : '',
+            
+						customCSSStyle
+					]"
+					:class="[round_rp, 'flex flex-col overflow ', customClass]"
+				>
+					<view class="flex flex-row px-24" style="height: 44px" :class="[props.closeable ? 'flex-row-center-between' : 'flex-center']">
+						<slot name="title">
+							<tm-text
+								:_style="props.titleStyle"
+								:dark="props.dark"
+								:followTheme="false"
+								_class="text-overflow-1 text-weight-b text-size-m text-align-center"
+								:label="props.title"
+							></tm-text>
+						</slot>
+						<tm-icon v-if="closeable" _class="opacity-3" name="tmicon-times-circle-fill" :fontSize="32" @click="close"></tm-icon>
+					</view>
+					<scroll-view scroll-y :style="[props.height ? { height: contentHeight } : '']">
+						<view class="px-32">
+							<slot name="default">
+								<tm-text :font-size="30" :dark="props.dark" :followTheme="false" :label="props.content" _style="line-height:46rpx"></tm-text>
+							</slot>
+						</view>
+					</scroll-view>
+					<view class="flex flex-row" :class="[props.splitBtn ? 'pa-32' : '']">
+						<slot name="button">
+							<view v-if="!props.hideCancel" class="flex-1 overflow" style="height: 90rpx">
+								<tm-sheet
+									:dark="props.dark"
+									:followTheme="true"
+									:isDisabledRoundAndriod="true"
+									@click="cancel"
+									:height="90"
+									:linear="props.cancelLinear"
+									:linearDeep="props.cancelLlinearDeep"
+									text
+									:color="props.cancelColor"
+									:_class="['flex-center overflow flex']"
+									:paren-class="props.splitBtn ? 'round-' + props.btnRound : 'round-bl-' + props.round"
+									:margin="[0, 0]"
+									:padding="[0, 0]"
+								>
+									<tm-text
+										_class="text-weight-b"
+										_style="line-height:90rpx"
+										:dark="props.dark"
+										:followTheme="false"
+										:userInteractionEnabled="false"
+										:label="props.cancelText"
+									></tm-text>
+								</tm-sheet>
+							</view>
+							<view v-if="props.splitBtn && !props.hideCancel" class="overflow" style="width: 24rpx"></view>
+							<view class="flex-1 flex" :class="[okLoading ? 'opacity-5' : '', 'overflow']" style="height: 90rpx">
+								<tm-sheet
+									paretClass="flex-1"
+									class="flex-1"
+									:dark="props.dark"
+									:followTheme="true"
+									:isDisabledRoundAndriod="true"
+									@click="ok"
+									:height="90"
+									:linear="props.okLinear"
+									:linearDeep="props.okLlinearDeep"
+									:color="props.okColor"
+									:margin="[0, 0]"
+									:_class="['flex-center overflow']"
+									:paren-class="props.splitBtn ? 'round-' + props.btnRound : 'round-br-' + props.round"
+									:padding="[0, 0]"
+								>
+									<view :userInteractionEnabled="false" class="flex flex-row">
+										<view v-if="okLoading" class="pr-10"><tm-icon :userInteractionEnabled="false" name="tmicon-loading" spin></tm-icon></view>
+										<tm-text _class="text-weight-b" :dark="props.dark" :userInteractionEnabled="false" :label="props.okText"></tm-text>
+									</view>
+								</tm-sheet>
+							</view>
+						</slot>
+					</view>
+				</view>
+			</tm-translate>
+		</tm-overlay>
+	</view>
 </template>
 
 <script lang="ts" setup>
@@ -209,7 +175,7 @@ const props = defineProps({
   },
   round: {
     type: Number,
-    default: 12,
+    default: 10,
   },
   //弹出的动画时间单位ms.
   duration: {
@@ -301,6 +267,15 @@ const props = defineProps({
   titleStyle: {
     type: [Array, String, Object],
     default: () => [],
+  },
+  zIndex: {
+    type: [Number, String],
+    default: 999,
+  },
+  /** 是否使用teleport */
+  teleport:{
+    type: Boolean,
+    default: true,
   },
 });
 const emits = defineEmits(["click", "open", "close", "update:show", "ok", "cancel"]);
@@ -417,18 +392,22 @@ async function ok() {
   if (props.disabled) return;
   debounce(
     async () => {
-      if (typeof props.beforeClose === "function") {
-        okLoading.value = true;
-        let p = await props.beforeClose();
-        if (typeof p === "function") {
-          p = await p();
-        }
-        okLoading.value = false;
-        if (!p) return;
+      try{
+      	if (typeof props.beforeClose === "function") {
+      	  okLoading.value = true;
+      	  let p = await props.beforeClose()
+      	  if (typeof p === "function") {
+      	    p = await p();
+      	  }
+      	  okLoading.value = false;
+      	  if (!p) return;
+      	}
+      	emits("ok", toRaw(nowCallFun));
+      	isOkClose = true;
+      	close();
+      }catch(e){
+      	okLoading.value = false;
       }
-      emits("ok", toRaw(nowCallFun));
-      isOkClose = true;
-      close();
     },
     250,
     true
@@ -440,7 +419,7 @@ function cancel() {
   if (okLoading.value) return;
   isOkClose = false;
   emits("cancel", toRaw(nowCallFun));
-  
+
   close();
 }
 
@@ -469,7 +448,6 @@ function overclose() {
 
 // 外部调用
 function open(arg: any = null) {
-  if (props.disabled) return;
   if (okLoading.value) return;
   if (_show.value == true) return;
   return new Promise((res,rej)=>{
@@ -478,10 +456,10 @@ function open(arg: any = null) {
         reverse.value = true;
         overlayAni.value?.open(true);
         nowCallFun = arg;
-        
+
           rejCall = rej;
           resCall = res;
-        
+
       },
       props.duration,
       true
@@ -491,7 +469,6 @@ function open(arg: any = null) {
 
 // 内部调用
 function opens() {
-  if (!props.overlayClick) return;
   if (props.disabled) return;
   if (okLoading.value) return;
   if (_show.value == true) return;
@@ -508,7 +485,6 @@ function opens() {
 
 //外部手动调用关闭方法
 async function close(arg: Function | null = null) {
-  if (props.disabled) return;
   reverse.value = false;
   if (!drawerANI.value) return;
   overlayAni.value?.close();
@@ -541,33 +517,33 @@ defineExpose({
 
 <style scoped>
 .flex-left-custom {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
 }
 
 .flex-right-custom {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-end;
 }
 
 .flex-top-custom {
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
 }
 
 .flex-end-custom {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end;
 }
 
 .flex-center-custom {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: row;
 }
 </style>

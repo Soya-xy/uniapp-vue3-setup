@@ -13,8 +13,10 @@
       :height="props.height"
       :width="props.width"
       _class="flex flex-row flex-row-center-center"
+      
     >
       <view
+        v-if="isNaN(activeIndex)||isButton"
         @click="onClick(item, index)"
         :style="{ height: props.height + 'rpx', width: itemwidth + 'rpx' }"
         class="flex flex-row flex-row-center-center"
@@ -70,7 +72,7 @@
       class="bgContent fixed"
       :style="{
         left: (isNaN(activeIndex) || isButton ? '-10000' : el_left) + 'px',
-        top: el_top + sysinfo.top + 'px',
+        top: _fixed?(sysinfo.top+'px'):(el_top + sysinfo.top + 'px'),
         width: props.width + 'rpx',
         height: sysinfo.height + el_top + 'px',
       }"
@@ -82,7 +84,7 @@
       class="content fixed"
       :style="{
         left: (isNaN(activeIndex) || isButton ? '-10000' : el_left) + 'px',
-        top: el_top + sysinfo.top + 'px',
+        top:_fixed?(sysinfo.top+'px'):(el_top + sysinfo.top + 'px'),
         width: props.width + 'rpx',
         height: sysinfo.height + el_top + 'px',
       }"
@@ -189,6 +191,10 @@ const props = defineProps({
     type: Number,
     default: NaN,
   },
+  fixed:{
+    type:Boolean,
+    default:false
+  }
 });
 const sysinfo = inject(
   "tmuiSysInfo",
@@ -211,6 +217,7 @@ const el_top = ref(0);
 const cachList: Ref<Array<FilterMenuType>> = ref([]);
 const itemwidth = computed(() => Math.ceil(props.width / (cachList.value.length || 1)));
 const activeIndex = ref(props.modelValue);
+const _fixed = computed(()=>props.fixed)
 const isButton = computed(() => {
   if (isNaN(activeIndex.value)) return false;
   let el = cachList.value[activeIndex.value];
@@ -345,7 +352,7 @@ defineExpose({
 .bg {
   background-color: rgba(122, 106, 106, 0);
   /* #ifndef APP-NVUE */
-  backdrop-filter: blur(0px);
+  /* backdrop-filter: blur(0px); */
   z-index: 50;
   /* #endif */
 }
@@ -353,7 +360,7 @@ defineExpose({
 .bgContent {
   background-color: rgba(0, 0, 0, 0.35);
   /* #ifndef APP-NVUE */
-  backdrop-filter: blur(5px);
+  /* backdrop-filter: blur(5px); */
   z-index: 51;
   /* #endif */
   /* #ifdef APP-NVUE */
@@ -386,12 +393,12 @@ defineExpose({
 @keyframes bgcolorani {
   0% {
     background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
+    /* backdrop-filter: blur(0px); */
   }
 
   100% {
     background-color: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(5px);
+    /* backdrop-filter: blur(5px); */
   }
 }
 

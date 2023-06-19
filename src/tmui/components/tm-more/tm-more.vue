@@ -19,15 +19,18 @@
         isOpen ? '' : isDark ? 'darkBg absolute' : 'lightBg absolute',
       ]"
       :style="[
-        !css_is_nvue ? { width: '100%' } : '',
+        !css_is_nvue ? { width: '100%', 'box-sizing': 'border-box' } : '',
         css_is_nvue && !isOpen
           ? { width: css_nvue_size[0] + 'px', height: css_nvue_size[1] + 'px' }
           : '',
       ]"
     >
       <slot name="more">
-        <view :userInteractionEnabled="false" class="flex flex-row flex-row-center-center">
-            <tm-icon
+        <view
+          :userInteractionEnabled="false"
+          class="flex flex-row flex-row-center-center"
+        >
+          <tm-icon
             :font-size="24"
             :color="fontColor"
             :name="isOpen ? 'tmicon-angle-up' : 'tmicon-angle-down'"
@@ -107,7 +110,7 @@ const tmcfg = computed(() => store.tmStore);
 const isDark = computed(() => computedDark(props, tmcfg.value));
 const isInit = ref(false);
 const proxy = getCurrentInstance()?.proxy ?? null;
-
+let timeId: any = NaN;
 const css_is_nvue = ref(true);
 // #ifndef APP-NVUE
 css_is_nvue.value = false;
@@ -136,6 +139,7 @@ async function open() {
 onUpdated(() => {
   nvuegetClientRect();
 });
+onUnmounted(() => clearTimeout(timeId));
 onMounted(() => {
   nvuegetClientRect();
 });
@@ -150,7 +154,10 @@ function nvuegetClientRect() {
           isMaxheight.value = true;
         }
         if (res.size.height == 0) {
-          nvuegetClientRect();
+          clearTimeout(timeId);
+          timeId = setTimeout(() => {
+            nvuegetClientRect();
+          }, 250);
         } else {
           isInit.value = true;
         }
@@ -164,7 +171,10 @@ function nvuegetClientRect() {
       .select(".contentbody")
       .boundingClientRect((res) => {
         if (res?.height == 0) {
-          nvuegetClientRect();
+          clearTimeout(timeId);
+          timeId = setTimeout(() => {
+            nvuegetClientRect();
+          }, 250);
         } else {
           if ((res?.height ?? 0) >= maxHeight.value) {
             isMaxheight.value = true;

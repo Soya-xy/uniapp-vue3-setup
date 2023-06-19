@@ -1,15 +1,17 @@
 
 /**
  * 主题工具
- * @author tmzdy tmVuetify
+ * @author tmzdy tmui3.0
  * @description 主题样式生成工具
  * @copyright tmzdy|tmui|https://tmui.design
  */
 import { colortool } from './colortool';
+
 import  { cssStyleConfig, cssstyle, colorThemeType, cssDirection, linearDirection, linearDeep, linearDirectionType } from '../lib/interface';
 //导入用户自定义的主题色值。
-import { theme } from '../../../theme/index';
-import { color } from 'echarts';
+// import { theme } from '../../../theme/index';
+let theme = (uni?.$tm?.config?.theme??uni.getStorageSync('$tm'))||{}
+
 var colors: Array<colorThemeType> = [];
 var colorObj: any = {
 	red: '#FE1C00',
@@ -78,7 +80,7 @@ function getColor(colorName: string) {
 		isHand = colors.findIndex(function(el, index) {
 			return el.name == colorName;
 		});
-		console.error('主题中不存在相关名称的主题。');
+		console.warn('主题中不存在相关名称的主题。');
 	}
 
 
@@ -148,6 +150,12 @@ class themeColors {
 
 		return this.colors[isHand];
 	}
+	/**
+	 * 计算主题
+	 * @author tmui3.0|tmzdy
+	 * @param config 样式的细化
+	 * @returns cssstyle 返回一个计算好的主题系。
+	 */
 	public getTheme(config: cssStyleConfig = { colorname: 'primary', dark: false }): cssstyle {
 		if (!config['colorname']) {
 			console.error('颜色名称必填');
@@ -158,15 +166,12 @@ class themeColors {
 			console.error('主题不存在，默认为primary');
 			config.colorname = 'primary';
 		}
-		let isBlack = false;
-		let isWhite = false;
-		let isBlackAndWhite = false;//是否是黑白色系之间。
-		let isGrey = false
-		let isDarkColor = false;
+		
 		//当前颜色对象。
 		let nowColor = { ...this.colors[index] };
 		config.borderWidth = isNaN(parseInt(String(config['borderWidth']))) ? 0 : config['borderWidth']??0;
 		config.borderStyle = config['borderStyle'] ? config['borderStyle'] : 'solid';
+		config.borderColor = config['borderColor'] || '';
 		config.borderDirection = config['borderDirection'] || cssDirection.all;
 		config.linearDirection = config['linearDirection'] || linearDirection.none;
 		config.linearDeep = config['linearDeep'] || linearDeep.light;
@@ -182,6 +187,17 @@ class themeColors {
 			const yiq = (r * 2126 + g * 7152 + b * 722) / 10000;
 			return yiq < 180;
 		}
+		/**是否是黑色 */
+		let isBlack = false;
+		/**是否是白色 */
+		let isWhite = false;
+		/**黑或者白 */
+		let isBlackAndWhite = false;
+		/**是否是灰色 */
+		let isGrey = false
+		/**该颜色在人眼中属于深，还是浅，以适配文本色 */
+		let isDarkColor = false;
+
 		isDarkColor = isDarkColorFun(nowColor.rgba.r, nowColor.rgba.g, nowColor.rgba.b)
 		//黑
 		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && nowColor.hsla.l == 0) {
@@ -191,10 +207,11 @@ class themeColors {
 		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && nowColor.hsla.l == 100) {
 			isWhite = true;
 		}
-		//白
+		//灰
 		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && nowColor.hsla.l < 100) {
 			isGrey = true;
 		}
+		//黑或者白
 		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0) {
 			isBlackAndWhite = true;
 		}
@@ -206,35 +223,31 @@ class themeColors {
 		css.gradientColor = []
 		css.colorname = config.colorname;
 		let borderhsl = { ...nowColor.hsla };
-
 		let borderDir = "all";
 		css.borderCss = {};
 
 		//背景颜色。
 		let bghsl = { ...nowColor.hsla };
-		if (config.dark) {
-			if (nowColor.hsla.h != 0 && nowColor.hsla.s != 0) {
-				bghsl.l = 40
-			}
+		/**非黑非白,h,s不变，只要降10%的亮度即可。 */
+		if (config.dark && !isBlackAndWhite) {
+			bghsl.l = 40;
 		}
 		if (config.blur) {
 			bghsl.a = 0.85
 		}
 		css.backgroundColor = colortool.rgbaToCss(colortool.hslaToRgba({ ...bghsl }));
 
-		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && config.dark) {
+		if (isBlackAndWhite && config.dark) {
 			css.backgroundColor = colortool.rgbaToCss(colortool.hslaToRgba({ ...bghsl,h:240,s:3, l: 8 }));
 			css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...borderhsl,h:240,s:3, l: 12 }));
 		}
-		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && !config.dark && nowColor.hsla.l == 100) {
+		if (isWhite && !config.dark) {
 			css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...borderhsl, l: 90 }));
 		}
-		if (nowColor.hsla.h == 0 && nowColor.hsla.s == 0 && !config.dark && nowColor.hsla.l == 0) {
+		if (isBlack && !config.dark) {
 			css.border = colortool.rgbaToCss(colortool.hslaToRgba({ ...borderhsl, l: 12 }));
 		}
-
 		css.backgroundColorCss = { 'background-color': css.backgroundColor }
-
 		//文字颜色。
 		let txcolor = { ...nowColor.hsla };
 		//当亮度小于（含）50需要降低文本颜色的亮度，即加深。，否则加亮，即变浅色。
@@ -250,14 +263,7 @@ class themeColors {
 					txcolor.l = 20;
 				}
 			}
-
 		}
-		// if (nowColor.hsla.h > 45 && nowColor.hsla.h < 90 && nowColor.hsla.h!=0&&nowColor.hsla.s!=0) {
-		// 	txcolor.l = 20;
-		// }
-
-
-
 
 		//外边框轮廓时
 		//outlined
@@ -362,8 +368,7 @@ class themeColors {
 				addling = -37
 			}
 			
-			
-			
+	
 			//先计算渐变的亮色系。
 			// 先算白或者黑
 			// 如果是白
@@ -441,16 +446,18 @@ class themeColors {
 				}
 				css.backgroundColor = colortool.rgbaToCss(colortool.hslaToRgba(newBgcolor));
 				css.gradientColor = [color_t_1, color_t_2]
+				css.linearDirectionStr = dir_str;
 			}
 
 		}
 
 		if (config.dark == true) {
-			css.cardcolor = '#0A0A0B'; //项目
-			css.inputcolor = '#111112';//输入框，表单等
-			css.bodycolor = 'rgba(5,5,5, 1.0)';//背景
-			css.disablecolor = 'rgba(30, 30, 30, 1.0)';//禁用的项目或者表单
-			css.textDisableColor = 'rgba(100, 100, 100, 1.0)';//文本禁用色.
+			// css.cardcolor = '#0A0A0B'; //项目
+			// css.inputcolor = '#111112';//输入框，表单等
+			// css.bodycolor = 'rgba(5,5,5, 1.0)';//背景
+			// css.disablecolor = 'rgba(30, 30, 30, 1.0)';//禁用的项目或者表单
+			// css.textDisableColor = 'rgba(100, 100, 100, 1.0)';//文本禁用色.
+			css = {...css,...uni.$tm.config?.themeConfig?.dark??{}}
 		}
 
 		css.textColor = colortool.rgbaToCss(colortool.hslaToRgba(txcolor));
@@ -476,34 +483,34 @@ class themeColors {
 				}
 	
 			}
+			css.border = config.borderColor||css.border
 		}
 
 		//设置边线样式。
+		let bcss = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
 		if (config.borderDirection == 'all') {
-			css.borderCss[`border`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border`] = bcss;
 		} else if (config.borderDirection == 'x' || config.borderDirection == "leftright") {
-			css.borderCss[`border-left`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-right`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-left`] = bcss;
+			css.borderCss[`border-right`] = bcss;
 		} else if (config.borderDirection == 'y' || config.borderDirection == "topbottom") {
-			css.borderCss[`border-top`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-bottom`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-top`] = bcss;
+			css.borderCss[`border-bottom`] = bcss;
 		} else if (config.borderDirection == 'bottomleft') {
-			css.borderCss[`border-left`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-bottom`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-left`] = bcss;
+			css.borderCss[`border-bottom`] = bcss;
 		} else if (config.borderDirection == 'bottomright') {
-			css.borderCss[`border-right`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-bottom`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-right`] = bcss;
+			css.borderCss[`border-bottom`] = bcss;
 		} else if (config.borderDirection == 'topleft') {
-			css.borderCss[`border-left`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-top`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-left`] = bcss;
+			css.borderCss[`border-top`] = bcss;
 		} else if (config.borderDirection == 'topright') {
-			css.borderCss[`border-right`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			css.borderCss[`border-top`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
+			css.borderCss[`border-right`] = bcss;
+			css.borderCss[`border-top`] = bcss;
 		} else {
 			let str = '-' + config.borderDirection;
-			css.borderCss[`border${str}`] = `${config.borderWidth}rpx ${config.borderStyle} ${css.border}`;
-			
-
+			css.borderCss[`border${str}`] = bcss;
 		}
 		
 		return css;

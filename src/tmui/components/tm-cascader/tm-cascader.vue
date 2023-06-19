@@ -1,7 +1,7 @@
 <template>
   <tm-sheet
     :color="props.color"
-    class="flex flex-col"
+    
     :height="props.height"
     :padding="[0, 0]"
   >
@@ -113,7 +113,7 @@ const props = defineProps({
    * 默认选中的数据
    */
   defaultValue: {
-    type: Array,
+    type: Array as PropType<Array<string>>,
     default: () => [],
   },
   /**

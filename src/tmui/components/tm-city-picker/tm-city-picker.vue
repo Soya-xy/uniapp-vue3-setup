@@ -1,44 +1,24 @@
 <template>
-  <tm-drawer
-    :disabbleScroll="true"
-    :round="props.round"
-    ref="drawer"
-    :height="820"
-    :closable="true"
-    :overlayClick="aniover"
-    @open="drawerOpen"
-    @cancel="cancel"
-    @ok="confirm"
-    :show="showCity"
-    @update:show="closeDrawer"
-    title="请选择地区"
-    ok-text="确认"
-  >
-    <tm-picker-view
-      v-if="showCity"
-      ref="picker"
-      :height="590"
-      @end="aniover = true"
-      @start="aniover = false"
-      :value="_colIndex"
-      @update:modelValue="_colIndex = $event"
-      @update:model-str="_colStr = $event"
-      :model-str="_colStr"
-      :default-value="_colIndex"
-      :columns="_data"
-    ></tm-picker-view>
-    <tm-button
-      label="确认选择"
-      block
-      :margin="[32, 12]"
-      :color="props.color"
-      :linear="props.linear"
-      :linear-deep="props.linearDeep"
-      @click="confirm"
-      :round="props.btnRound"
-    ></tm-button>
-    <view :style="{ height: win_bottom + 'px' }"></view>
-  </tm-drawer>
+  <view @click="showCity = !props.disabled?!showCity:false">
+    <!-- #ifdef APP-NVUE -->
+    <view :eventPenetrationEnabled="true">
+      <slot></slot>
+    </view>
+    <!-- #endif -->
+    <!-- #ifndef APP-NVUE -->
+    <slot></slot>
+    <!-- #endif -->
+    <tm-drawer :disabbleScroll="true" :round="props.round" ref="drawer" :height="820" :closable="true"
+      :overlayClick="aniover" @open="drawerOpen" @cancel="cancel" @ok="confirm" :show="showCity"
+      @update:show="closeDrawer" title="请选择地区" ok-text="确认" :duration="props.duration">
+      <tm-picker-view v-if="showCity" ref="picker" :height="590" @end="aniover = true" @start="aniover = false"
+        :value="_colIndex" @update:modelValue="_colIndex = $event" @update:model-str="_colStr = $event"
+        :model-str="_colStr" :default-value="_colIndex" :columns="_data" :ok-color="props.color"></tm-picker-view>
+      <tm-button label="确认选择" block :margin="[32, 12]" :color="props.color" :linear="props.linear"
+        :linear-deep="props.linearDeep" @click="confirm" :round="props.btnRound"></tm-button>
+      <view :style="{ height: win_bottom + 'px' }"></view>
+    </tm-drawer>
+  </view>
 </template>
 <script lang="ts" setup>
 /**
@@ -120,6 +100,16 @@ const props = defineProps({
     type: String,
     default: "id",
   },
+  /**
+ * 城市选择的级别
+ * province:省级别。
+ * city:省，市
+ * area:省，市，县/区.
+ */
+  cityLevel: {
+    type: String,
+    default: "area",
+  },
   // 手动赋值城市数据
   city: {
     type: Array as PropType<Array<childrenData>>,
@@ -145,12 +135,22 @@ const props = defineProps({
     type: Number,
     default: 12,
   },
+  /**禁用时，通过插槽点击时，不会触发显示本组件，适合表单 */
+  disabled:{
+    type:Boolean,
+    default:false
+  },
+  //弹出的动画时间单位ms.
+  duration: {
+    type: Number,
+    default: 300,
+  },
 });
 const showCity = ref(true);
 const _cityData = computed(() => props.city);
 const _colIndex: Ref<Array<number>> = ref([]);
 const _data = ref(chiliFormatCity_area());
-let tmid = NaN;
+let tmid: any = NaN;
 const _colStr = ref("");
 const aniover = ref(true);
 const sysinfo = inject("tmuiSysInfo", {
@@ -217,7 +217,6 @@ function defaultModerStrGet() {
   clearTimeout(tmid);
   tmid = setTimeout(function () {
     if (_colIndex.value.length > 0) {
-      console.log(_colIndex.value, 999);
       let text = getRouterText(_data.value, 0);
       emits("update:modelStr", text.join("/"));
     }
@@ -232,7 +231,7 @@ function getIndexBymodel(
 ): Array<number | string> {
   if (value.length == 0) return [];
   if (model == "name") {
-    let item = vdata.filter((el) => value[parentIndex] == el["text"]);
+    let item: any = vdata.filter((el) => value[parentIndex] == el["text"]);
     if (item.length == 0) {
       item = vdata[0];
       if (item) {
@@ -254,7 +253,7 @@ function getIndexBymodel(
       }
     }
   } else if (model == "id") {
-    let item = vdata.filter((el) => value[parentIndex] == el["id"]);
+    let item: any = vdata.filter((el) => value[parentIndex] == el["id"]);
     if (item.length == 0) {
       item = vdata[0];
       if (item) {
@@ -280,13 +279,15 @@ function getIndexBymodel(
 //返回 一个节点从父到子的路径id组。
 function getRouterId(
   list: Array<childrenData> = [],
-  parentIndex = 0
+  parentIndex = 0,
+ value: Array<number | string> = []
 ): Array<string | number> {
   let p: Array<string | number> = [];
+  const _defalutValue = value.length==0?_colIndex.value:value;
   for (let i = 0; i < list.length; i++) {
-    if (i == _colIndex.value[parentIndex]) {
+    if (i == _defalutValue[parentIndex]) {
       p.push(list[i]["id"]);
-      if (typeof _colIndex.value[parentIndex] != "undefined") {
+      if (typeof _defalutValue[parentIndex] != "undefined") {
         let c = getRouterId(list[i]["children"], parentIndex + 1);
         p = [...p, ...c];
       }
@@ -352,4 +353,10 @@ function chiliFormatCity_area() {
 
   return list;
 }
+
+defineExpose({
+  getList:chiliFormatCity_area,
+  getIndexs:getIndexBymodel,
+  getRouterId
+})
 </script>
